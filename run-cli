@@ -1,0 +1,2 @@
+#!/bin/bash
+docker run -it -u "1000:1000" -v "$(pwd):/var/www/html" --rm renorram/testphpcli /bin/sh
