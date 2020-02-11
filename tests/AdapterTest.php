@@ -9,11 +9,11 @@ use Psr\Http\Message\ResponseInterface;
 
 class AdapterTest extends TestCase
 {
-    /**
-     * @todo
-     */
-    public function testItShouldBringMeInfo()
+    private Adapter $adapter;
+    protected function setUp(): void
     {
+        parent::setUp();
+        /** @todo get settings from env files */
         $appSettings = AppSettings::createFromArray(
             [
                 'appName'      => "",
@@ -24,11 +24,31 @@ class AdapterTest extends TestCase
             ]
         );
 
-        $adapter = new Adapter($appSettings);
+        $this->adapter = new Adapter($appSettings);
+    }
 
-        $response = $adapter->getMe();
+    public function testItShouldBringMeInfo()
+    {
+        $response = $this->adapter->getMe();
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    public function testItShouldBringTopSubrreditPosts()
+    {
+        $response = $this->adapter->getSubredditTopList('funny');
+
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    public function testItShouldBringBestSubrreditPosts()
+    {
+        $response = $this->adapter->getSubredditBestList('funny');
+
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals(200, $response->getStatusCode());
+        var_dump(json_decode($response->getBody(), true));
     }
 }

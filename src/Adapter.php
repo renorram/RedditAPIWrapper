@@ -3,44 +3,35 @@
 namespace App;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
+use App\Factory\ClientFactory;
+use App\Factory\CacheAdapterFactory;
 
 final class Adapter
 {
     private Client $client;
-    private Authentication $authentication;
-    private AuthData $auth;
-    private
     const BASE_URI = 'https://oauth.reddit.com';
 
     public function __construct(AppSettings $appSettings)
     {
-        $this->authentication = new Authentication($appSettings, new CacheAdapter());
-        $this->auth = $this->authentication->authenticate();
-        $this->client = new Client(['base_uri' => self::BASE_URI]);
+        $this->client = ClientFactory::createClientWithAuth(
+            Authentication::create($appSettings, CacheAdapterFactory::createFSWithNamespace()),
+            ['base_uri' => self::BASE_URI]
+        );
     }
 
     public function getMe(): ResponseInterface
     {
-        return $this->client->request(
-            'GET',
-            '/api/v1/me',
-            [
-                RequestOptions::HEADERS => [
-                    'User-Agent'    => $this->authentication->getAppSettings()->getAppName(),
-                    'Authorization' => 'bearer ' . $this->getToken()
-                ],
-            ]
-        );
+        return $this->client->get('/api/v1/me');
     }
 
-    private function getToken(): string
+    public function getSubredditTopList(string $subReddit): ResponseInterface
     {
-        if (!$this->auth->isExpired()) {
-            $this->auth = $this->authentication->authenticate();
-        }
+        return $this->client->get(\sprintf('/r/%s/top', $subReddit));
+    }
 
-        return $this->auth->getAccessToken();
+    public function getSubredditBestList(string $subReddit): ResponseInterface
+    {
+        return $this->client->get(\sprintf('/r/%s/best', $subReddit));
     }
 }

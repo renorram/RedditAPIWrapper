@@ -6,19 +6,25 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 final class Authentication
 {
     private AppSettings $appSettings;
-    private CacheAdapter $cacheAdapter;
+    private CacheInterface $cacheAdapter;
 
-    public function __construct(AppSettings $appSettings, CacheAdapter $cacheAdapter)
+    public function __construct(AppSettings $appSettings, CacheInterface $cacheAdapter)
     {
         $this->appSettings = $appSettings;
         $this->cacheAdapter = $cacheAdapter;
     }
 
-    public function getAppSettings()
+    public static function create(AppSettings $appSettings, CacheInterface $cacheAdapter): self
+    {
+        return new self($appSettings, $cacheAdapter);
+    }
+
+    public function getAppSettings(): AppSettings
     {
         return $this->appSettings;
     }
