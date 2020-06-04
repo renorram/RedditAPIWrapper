@@ -1,4 +1,6 @@
 {
+  "type": "project",
+  "license": "MIT",
   "require": {
     "ext-json": "*",
     "guzzlehttp/guzzle": "^6.5",
